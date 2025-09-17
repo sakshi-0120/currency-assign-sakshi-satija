@@ -18,8 +18,15 @@ public class CurrencyConversionStubService implements CurrencyConversionService 
                 : calculate(money, targetCurrency);
     }
 
+    //to calculate rounding digits
+    private static BigDecimal roundForCurrency(BigDecimal value, Currency currency) {
+        int scale = Math.max(0, currency.getDefaultFractionDigits());
+        return value.setScale(scale, RoundingMode.HALF_EVEN);
+    }
+
     private Money calculate(Money money, Currency targetCurrency) {
         BigDecimal rate = "PLN".equals(targetCurrency.getCurrencyCode()) ? EUR_TO_PLN_RATE : PLN_TO_EUR_RATE;
-        return Money.of(money.amount().multiply(rate).setScale(2, RoundingMode.HALF_UP), targetCurrency);
+        BigDecimal amount = money.amount().multiply(rate);
+        return Money.of(roundForCurrency(amount, targetCurrency), targetCurrency);
     }
 }
